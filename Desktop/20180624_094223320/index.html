@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<title>3D-元素周期表</title>
+<style>
+html, body {
+	height: 100%;
+}
+
+body {
+	background-color: #000000;
+	margin: 0;
+	font-family: Helvetica, sans-serif;;
+	overflow: hidden;
+}
+
+a {
+	color: #ffffff;
+}
+
+#info {
+	position: absolute;
+	width: 100%;
+	color: #ffffff;
+	padding: 5px;
+	font-family: Monospace;
+	font-size: 13px;
+	font-weight: bold;
+	text-align: center;
+	z-index: 1;
+}
+
+#menu {
+	position: absolute;
+	bottom: 20px;
+	width: 100%;
+	text-align: center;
+	font-family: verdana,Tahoma,Arial,Hei,"Microsoft Yahei",SimHei;
+}
+
+.element {
+	width: 120px;
+	height: 160px;
+	box-shadow: 0px 0px 12px rgba(0,255,255,0.5);
+	border: 1px solid rgba(127,255,255,0.25);
+	text-align: center;
+	cursor: default;
+	border-radius: 10px;
+}
+
+.element:hover {
+	box-shadow: 0px 0px 12px rgba(0,255,255,0.75);
+	border: 1px solid rgba(127,255,255,0.75);
+}
+.element .number {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	font-size: 12px;
+	color: rgba(127,255,255,0.75);
+}
+.element .symbol {
+	position: absolute;
+	top: 40px;
+	left: 0px;
+	right: 0px;
+	font-size: 60px;
+	font-weight: bold;
+	color: rgba(255,255,255,0.75);
+	text-shadow: 0 0 10px rgba(0,255,255,0.95);
+}
+.element .details {
+	position: absolute;
+	bottom: 15px;
+	left: 0px;
+	right: 0px;
+	font-size: 12px;
+	color: rgba(127,255,255,0.75);
+}
+.element .name {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	width: 20px;
+	height: 20px;
+	color: rgba(127,255,255,0.75);
+	font-size: 19px;
+}
+.element .spell {
+	position: absolute;
+	top: 5px;
+	left: 30px;
+	font-size: 12px;
+	color: rgba(127,255,255,0.75);
+}
+button {
+	color: rgba(127,255,255,0.75);
+	background: transparent;
+	outline: 1px solid rgba(127,255,255,0.75);
+	border: 0px;
+	padding: 5px 10px;
+	cursor: pointer;
+}
+button:hover {
+	background-color: rgba(0,255,255,0.5);
+}
+button:active {
+	color: #000000;
+	background-color: rgba(0,255,255,0.75);
+}
+.nemuElement {
+	position: absolute;
+	right: 20px;
+	margin: auto 0;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	height:100%;
+}
+.nemuElement button {
+	margin: 10px 0;
+}
+
+</style>
+</head>
+<body>
+<script src="js/three.min.js" ></script>
+<script src="js/tween.min.js" ></script>
+<script src="js/TrackballControls.js" ></script>
+<script src="js/CSS3DRenderer.js" ></script>
+<script src="js/changeColor.js"></script>
+
+<div id="container"></div>
+<div id="info">3D-元素周期表</div>
+<div id="menu">
+	<button id="table">表面</button>
+	<button id="sphere">球体</button>
+	<button id="helix">螺旋</button>
+	<button id="grid">网格</button>
+	<button id="snack">蛇形</button>
+	<button id="scoop">勺子</button>
+	<button id="hat">帽子</button>
+	<button id="Tom">Tom</button>
+	<button id="hand">手</button>
+	<button id="buttocks">屁股</button>
+	<button id="home">房子</button>
+</div>
+<div class="nemuElement">
+	<button id="inert-gases">惰性气体</button>
+	<button id="Nonmetal">非金属</button>
+	<button id="alkali-metal">碱金属</button>
+	<button id="alkaline-earth">碱土金属</button>
+	<button id="transition-metal">过渡金属</button>
+	<button id="Main-metal">主族金属</button>
+	<button id="Halogen-element">卤族元素</button>
+	<button id="lanthanoid">镧系元素</button>
+	<button id="Actinides">锕系元素</button>
+</div>
+
+<script>
+
+var table = [
+	"H", "Hydrogen", "1.00794", 1, 1,"qīng","氢",
+	"He", "Helium", "4.002602", 18, 1,'hài','氦',
+	"Li", "Lithium", "6.941", 1, 2,'lǐ','锂',
+	"Be", "Beryllium", "9.012182", 2, 2,'pí','铍',
+	"B", "Boron", "10.811", 13, 2,'péng','硼',
+	"C", "Carbon", "12.0107", 14, 2,'tàn','碳',
+	"N", "Nitrogen", "14.0067", 15, 2,'dàn','氮',
+	"O", "Oxygen", "15.9994", 16, 2,'yǎng','氧',
+	"F", "Fluorine", "18.9984032", 17, 2,'fú','氟',  
+	"Ne", "Neon", "20.1797", 18, 2,'nǎi','氖',
+	"Na", "Sodium", "22.98976...", 1, 3, 'nà','钠',
+	"Mg", "Magnesium", "24.305", 2, 3,'měi','镁',
+	"Al", "Aluminium", "26.9815386", 13, 3,'lǚ','铝',
+	"Si", "Silicon", "28.0855", 14, 3,'guī','硅',
+	"P", "Phosphorus", "30.973762", 15, 3,'lín','磷',
+	"S", "Sulfur", "32.065", 16, 3,'liú','硫',
+	"Cl", "Chlorine", "35.453", 17, 3,'lǜ','氯',
+	"Ar", "Argon", "39.948", 18, 3,'yà','氩',
+	"K", "Potassium", "39.948", 1, 4,'jiǎ','钾',
+	"Ca", "Calcium", "40.078", 2, 4,'gài','钙',
+	"Sc", "Scandium", "44.955912", 3, 4,'kàng','钪', 
+	"Ti", "Titanium", "47.867", 4, 4,'tài','钛',
+	"V", "Vanadium", "50.9415", 5, 4,'fán','钒',
+	"Cr", "Chromium", "51.9961", 6, 4,'gè','铬',
+	"Mn", "Manganese", "54.938045", 7, 4,'měng','锰',
+	"Fe", "Iron", "55.845", 8, 4,'tiě','铁',
+	"Co", "Cobalt", "58.933195", 9, 4,'gǔ','钴',
+	"Ni", "Nickel", "58.6934", 10, 4,'niè','镍',
+	"Cu", "Copper", "63.546", 11, 4,'tóng','铜',
+	"Zn", "Zinc", "65.38", 12, 4, 'xīn','锌',
+	"Ga", "Gallium", "69.723", 13, 4,'jiā','镓',
+	"Ge", "Germanium", "72.63", 14, 4, 'zhě','锗',
+	"As", "Arsenic", "74.9216", 15, 4,'shēn','砷',
+	"Se", "Selenium", "78.96", 16, 4,'xī','硒',
+	"Br", "Bromine", "79.904", 17, 4, 'xiù','溴',
+	"Kr", "Krypton", "83.798", 18, 4,'kè','氪',
+	"Rb", "Rubidium", "85.4678", 1, 5,'rú','铷',
+	"Sr", "Strontium", "87.62", 2, 5,'sī','锶',
+	"Y", "Yttrium", "88.90585", 3, 5, 'yǐ','钇',
+	"Zr", "Zirconium", "91.224", 4, 5,'gào','锆',
+	"Nb", "Niobium", "92.90628", 5, 5,'ní','铌',
+	"Mo", "Molybdenum", "95.96", 6, 5, 'mù','钼',
+	"Tc", "Technetium", "(98)", 7, 5,'dé','锝',    
+	"Ru", "Ruthenium", "101.07", 8, 5,'liǎo','钌',
+	"Rh", "Rhodium", "102.9055", 9, 5,'lǎo','铑',
+	"Pd", "Palladium", "106.42", 10, 5,'pá','钯',
+	"Ag", "Silver", "107.8682", 11, 5,'yín','银',
+	"Cd", "Cadmium", "112.411", 12, 5,'gé','镉',
+	"In", "Indium", "114.818", 13, 5,'yīn','铟',
+	"Sn", "Tin", "118.71", 14, 5,'xī','锡',
+	"Sb", "Antimony", "121.76", 15, 5,'tī','锑',
+	"Te", "Tellurium", "127.6", 16, 5,'dì','碲',
+	"I", "Iodine", "126.90447", 17, 5,'diǎn','碘',
+	"Xe", "Xenon", "131.293", 18, 5,'xiān','氙',
+	"Cs", "Caesium", "132.9054", 1, 6,'sè','铯',
+	"Ba", "Barium", "132.9054", 2, 6,'bèi','钡',
+	"La", "Lanthanum", "138.90547", 4, 9,'lán','镧',
+	"Ce", "Cerium", "140.116", 5, 9,'shì','铈',
+	"Pr", "Praseodymium", "140.90765", 6, 9,'cuò','错',
+	"Nd", "Neodymium", "144.242", 7, 9,'nǚ','钕',
+	"Pm", "Promethium", "(145)", 8, 9,'pǒ','钷',
+	"Sm", "Samarium", "150.36", 9, 9,'shān','钐',
+	"Eu", "Europium", "151.964", 10, 9,'yǒu','铕',
+	"Gd", "Gadolinium", "157.25", 11, 9, 'gá','钆',
+	"Tb", "Terbium", "158.92535", 12, 9,'tè','铽',          
+	"Dy", "Dysprosium", "162.5", 13, 9,'dí','镝',
+	"Ho", "Holmium", "164.93032", 14, 9,'huǒ','钬',
+	"Er", "Erbium", "167.259", 15, 9,'ěr','铒',
+	"Tm", "Thulium", "168.93421", 16, 9,'diū','铥',
+	"Yb", "Ytterbium", "173.054", 17, 9,'yì','镱',
+	"Lu", "Lutetium", "174.9668", 18, 9,'lǔ','镥',
+	"Hf", "Hafnium", "178.49", 4, 6, 'hā','铪',
+	"Ta", "Tantalum", "180.94788", 5, 6, 'tǎn','钽',
+	"W", "Tungsten", "183.84", 6, 6,'wū','钨',
+	"Re", "Rhenium", "186.207", 7, 6,'lái','铼',
+	"Os", "Osmium", "190.23", 8, 6,'é','锇',
+	"Ir", "Iridium", "192.217", 9, 6,'yī','铱',   
+	"Pt", "Platinum", "195.084", 10, 6,'bó','铂',
+	"Au", "Gold", "196.966569", 11, 6,'jīn','金',
+	"Hg", "Mercury", "200.59", 12, 6,'gǒng','汞',
+	"Tl", "Thallium", "204.3833", 13, 6,'tā','铊',
+	"Pb", "Lead", "207.2", 14, 6,'qiān','铅',        
+	"Bi", "Bismuth", "208.9804", 15, 6,'bì','铋',
+	"Po", "Polonium", "(209)", 16, 6,'pō','钋',
+	"At", "Astatine", "(210)", 17, 6,'ài','砹',
+	"Rn", "Radon", "(222)", 18, 6,'dōng','氡',
+	"Fr", "Francium", "(223)", 1, 7,'fāng','钫',
+	"Ra", "Radium", "(226)", 2, 7,'léi','镭',
+	"Ac", "Actinium", "(227)", 4, 10,'ā','锕',
+	"Th", "Thorium", "232.03806", 5, 10,'tǔ','钍',
+	"Pa", "Protactinium", "231.0588", 6, 10,'pú','镤',
+	"U", "Uranium", "238.02891", 7, 10,'yóu','铀',
+	"Np", "Neptunium", "(237)", 8, 10,'ná','镎',       
+	"Pu", "Plutonium", "(244)", 9, 10, 'bù','钚',
+	"Am", "Americium", "(243)", 10, 10,'méi','镅',
+	"Cm", "Curium", "(247)", 11, 10,'jū','锔',
+	"Bk", "Berkelium", "(247)", 12, 10,'péi','锫',
+	"Cf", "Californium", "(251)", 13, 10,'kāi','锎',
+	"Es", "Einstenium", "(252)", 14, 10, 'āi','锿',
+	"Fm", "Fermium", "(257)", 15, 10,'fèi','镄',
+	"Md", "Mendelevium", "(258)", 16, 10,'mén','钔',
+	"No", "Nobelium", "(259)", 17, 10,'nuò','锘',
+	"Lr", "Lawrencium", "(262)", 18, 10,'láo','铹',
+	"Rf", "Rutherfordium", "(267)", 4, 7,'','',
+	"Db", "Dubnium", "(268)", 5, 7,'','',
+	"Sg", "Seaborgium", "(271)", 6, 7,'','',
+	"Bh", "Bohrium", "(272)", 7, 7,'','',
+	"Hs", "Hassium", "(270)", 8, 7,'','',
+	"Mt", "Meitnerium", "(276)", 9, 7,'','',
+	"Ds", "Darmstadium", "(281)", 10, 7,'','',
+	"Rg", "Roentgenium", "(280)", 11, 7,'','',
+	"Cn", "Copernicium", "(285)", 12, 7,'','',
+	"Uut", "Unutrium", "(284)", 13, 7,'','',
+	"Fl", "Flerovium", "(289)", 14, 7,'','',
+	"Uup", "Ununpentium", "(288)", 15, 7,'','',
+	"Lv", "Livermorium", "(293)", 16, 7,'','',
+	"Uus", "Ununseptium", "(294)", 17, 7,'','',
+	"Uuo", "Ununoctium", "(294)", 18, 7,'',''
+];
+
+var camera, scene, renderer;
+var controls;
+
+var objects = [];
+var targets = { table: [], sphere: [], helix: [], grid: [] };
+
+init();
+animate();
+
+function init() {
+
+	camera = new THREE.PerspectiveCamera( 400, window.innerWidth / window.innerHeight, 1, 10000 );
+	camera.position.z = 3000;
+
+	scene = new THREE.Scene();
+ 
+	// table  
+	var div = document.createElement('div');
+
+	for ( var i = 0; i < table.length; i += 7 ) {
+	
+		var element = div.cloneNode(false);
+		element.className = 'element';
+		/*顺序*/
+		var number = div.cloneNode(false);
+		number.className = 'number';
+		number.textContent = (i/7) + 1;
+		element.appendChild( number );
+
+		/*缩写*/
+		var symbol = div.cloneNode(false);
+		symbol.className = 'symbol';
+		symbol.setAttribute('number',i/7+1);
+		symbol.textContent = table[ i ];
+		element.appendChild( symbol );
+
+		var j = i/7+1;//元素序号
+/*
+		if( j ==2 || j == 10 || j == 18 || j == 36 || j == 54 || j == 86) {
+			//惰性气体
+			symbol.style.color ='#338ED8';
+		} else if(  (j>= 5&& j<=8) || (j>=14 && j<=16) || j == 33 || j == 34 || j == 52 || j ==1) {
+			//非金属
+			symbol.style.color = '#33D8A7';
+		} else if(j == 3 || j == 11 || j == 19 || j == 37 || j == 55 ||j == 87) {
+			//碱金属
+			symbol.style.color = '#DCF339';
+		} else if(j == 4 || j == 12 || j == 20 || j == 38 || j == 56 || j == 88) {
+			//碱土金属
+			symbol.style.color = '#C49A2F';
+		} else if(j >=21 && j<= 30 || j>=39 && j<=48 || j>=72 && j<=80 || j>=104){
+			//过渡金属
+			symbol.style.color = '#000000';
+		}else if( j == 13 || j == 31 || j == 32 || j>=49 && j<= 51 || j>=81 && j<=84) {
+			//主族金属
+			symbol.style.color = '#B19ACA';
+		} else if( j == 9 || j == 17 || j == 35 || j == 53 || j == 85) {
+			//卤族元素
+			symbol.style.color = '#1CF10C';
+		}
+		else if(j>=57 && j<=71){
+			// 镧系元素
+			symbol.style.color = '#A6A8B2';
+		} else {
+			// 锕系元素
+			symbol.style.color = '#FFFFFF';
+		}
+*/
+		/*英文和相对原子质量*/
+		var details = div.cloneNode(false);
+		details.className = 'details';
+		details.innerHTML = table[ i + 1 ] + '<br>' + table[ i + 2 ];
+		element.appendChild( details );
+
+
+
+		/*中文名*/
+		var name = div.cloneNode(false);
+		name.className = 'name';
+		name.innerHTML = table[i+6];
+		element.appendChild(name);
+
+		/*拼音*/
+		var spell = div.cloneNode(false);
+		spell.className = 'spell';
+		spell.innerHTML = table[i+5];
+		element.appendChild(spell);
+
+		var object = new THREE.CSS3DObject( element );
+		object.position.x = Math.random() * 4000 - 2000;
+		object.position.y = Math.random() * 4000 - 2000;
+		object.position.z = Math.random() * 4000 - 2000;
+		scene.add( object );
+
+		objects.push( object );
+
+		// "Ce", "Cerium", "#140.116", 5, 9,'shì','铈',
+
+		var object = new THREE.Object3D();
+		object.position.x = ( table[ i + 3 ] * 140 ) - 1330;
+		object.position.y = - ( table[ i + 4 ] * 180 ) + 990;
+
+		targets.table.push( object );
+
+	}
+
+	// sphere
+
+	var vector = new THREE.Vector3();
+
+	for ( var i = 0, l = objects.length; i < l; i ++ ) {
+
+		var phi = Math.acos( -1 + ( 2 * i ) / l );
+		var theta = Math.sqrt( l * Math.PI ) * phi;
+
+		var object = new THREE.Object3D();
+
+		object.position.x = 800 * Math.cos( theta ) * Math.sin( phi );
+		object.position.y = 800 * Math.sin( theta ) * Math.sin( phi );
+		object.position.z = 800 * Math.cos( phi );
+
+		vector.copy( object.position ).multiplyScalar( 2 );
+
+		object.lookAt( vector );
+
+		targets.sphere.push( object );
+
+	}
+
+	// helix
+
+	var vector = new THREE.Vector3();
+
+	for ( var i = 0, l = objects.length; i < l; i ++ ) {
+
+		var phi = i * 0.175 + Math.PI;
+
+		var object = new THREE.Object3D();
+
+		object.position.x = 900 * Math.sin( phi );
+		object.position.y = - ( i * 8 ) + 450;
+		object.position.z = 900 * Math.cos( phi );
+
+		vector.x = object.position.x * 2;
+		vector.y = object.position.y;
+		vector.z = object.position.z * 2;
+
+		object.lookAt( vector );
+
+		targets.helix.push( object );
+
+	}
+
+	// grid
+
+	for ( var i = 0; i < objects.length; i ++ ) {
+
+		var object = new THREE.Object3D();
+
+		object.position.x = ( ( i % 5 ) * 400 ) - 800;
+		object.position.y = ( - ( Math.floor( i / 5 ) % 5 ) * 400 ) + 800;
+		object.position.z = ( Math.floor( i / 25 ) ) * 1000 - 2000;
+
+		targets.grid.push( object );
+
+	}
+
+	//
+
+	renderer = new THREE.CSS3DRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.domElement.style.position = 'absolute';
+	document.getElementById( 'container' ).appendChild( renderer.domElement );
+
+	//
+
+	controls = new THREE.TrackballControls( camera, renderer.domElement );
+	controls.rotateSpeed = 0.5;
+	controls.minDistance = 500;
+	controls.maxDistance = 6000;
+	controls.addEventListener( 'change', render );
+
+	var button = document.getElementById( 'table' );
+	button.addEventListener( 'click', function ( event ) {
+
+		transform( targets.table, 2000 );
+
+	}, false );
+
+	var button = document.getElementById( 'sphere' );
+	button.addEventListener( 'click', function ( event ) {
+
+		transform( targets.sphere, 2000 );
+
+	}, false );
+
+	var button = document.getElementById( 'helix' );
+	button.addEventListener( 'click', function ( event ) {
+
+		transform( targets.helix, 2000 );
+
+	}, false );
+
+	var button = document.getElementById( 'grid' );
+	button.addEventListener( 'click', function ( event ) {
+
+		transform( targets.grid, 2000 );
+
+	}, false );
+
+	transform( targets.table, 5000 );
+
+	//
+
+	window.addEventListener( 'resize', onWindowResize, false );
+
+}
+
+function transform( targets, duration ) {
+
+	TWEEN.removeAll();
+
+	for ( var i = 0; i < objects.length; i ++ ) {
+
+		var object = objects[ i ];
+		var target = targets[ i ];
+
+		new TWEEN.Tween( object.position )
+			.to( { x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration )
+			.easing( TWEEN.Easing.Exponential.InOut )
+			.start();
+
+		new TWEEN.Tween( object.rotation )
+			.to( { x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration )
+			.easing( TWEEN.Easing.Exponential.InOut )
+			.start();
+
+	}
+
+	new TWEEN.Tween( this )
+		.to( {}, duration * 2 )
+		.onUpdate( render )
+		.start();
+
+}
+
+function onWindowResize() {
+
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+	render();
+
+}
+
+function animate() {
+
+	requestAnimationFrame( animate );
+
+	TWEEN.update();
+
+	controls.update();
+
+}
+
+function render() {
+
+	renderer.render( scene, camera );
+
+}
+
+</script>
+<script>
+	var elements = document.querySelectorAll('.nemuElement>button');
+	[].forEach.call(elements, (item,index) => {
+		new defineColor({
+			length: 118,
+			num: index,
+			element: item
+		})
+	})
+</script>
+</body>
+</html>
